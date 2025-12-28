@@ -52,6 +52,25 @@
       <label>Frame height (px)</label>
       <div class="row"><input id="frameHeight" type="range" min="450" max="900" value="700"></div>
 
+      <h2>Text edits</h2>
+      <label>Page title</label>
+      <div class="row"><input id="pageTitle" type="text" value="DUAL WEATHER STATION MONITOR" style="flex:1;padding:6px;border-radius:6px;border:1px solid #cbd5e1"></div>
+      <label>EOA station title</label>
+      <div class="row"><input id="eoaTitle" type="text" value="EOA Weather" style="flex:1;padding:6px;border-radius:6px;border:1px solid #cbd5e1"></div>
+      <label>WOA station title</label>
+      <div class="row"><input id="woaTitle" type="text" value="WOA Weather" style="flex:1;padding:6px;border-radius:6px;border:1px solid #cbd5e1"></div>
+      <label>Open button text</label>
+      <div class="row"><input id="openText" type="text" value="↗️ Open in Tab" style="flex:1;padding:6px;border-radius:6px;border:1px solid #cbd5e1"></div>
+      <label>Footer text</label>
+      <div class="row"><input id="footerText" type="text" value="Unified Weather Station Dashboard • EOA & WOA Monitoring System" style="flex:1;padding:6px;border-radius:6px;border:1px solid #cbd5e1"></div>
+
+      <h2>Global replace</h2>
+      <label>Search text</label>
+      <div class="row"><input id="searchText" type="text" placeholder="text to find" style="flex:1;padding:6px;border-radius:6px;border:1px solid #cbd5e1"></div>
+      <label>Replace with</label>
+      <div class="row"><input id="replaceText" type="text" placeholder="replacement" style="flex:1;padding:6px;border-radius:6px;border:1px solid #cbd5e1"></div>
+      <div class="row"><input id="doGlobal" type="checkbox"><label style="margin:0">Apply global replace to preview/download</label></div>
+
       <div class="row"><button id="apply">Apply</button><button id="download" style="background:#059669;margin-left:8px">Download modified HTML</button></div>
       <div class="row"><button id="reset" style="background:#ef4444">Reset</button></div>
 
@@ -84,6 +103,16 @@
     const download = document.getElementById('download');
     const iframe = document.getElementById('preview-iframe');
 
+    // text inputs
+    const pageTitle = document.getElementById('pageTitle');
+    const eoaTitle = document.getElementById('eoaTitle');
+    const woaTitle = document.getElementById('woaTitle');
+    const openText = document.getElementById('openText');
+    const footerText = document.getElementById('footerText');
+    const searchText = document.getElementById('searchText');
+    const replaceText = document.getElementById('replaceText');
+    const doGlobal = document.getElementById('doGlobal');
+
     function applyStyles() {
       document.documentElement.style.setProperty('--bg1', bg1.value);
       document.documentElement.style.setProperty('--bg2', bg2.value);
@@ -98,6 +127,25 @@
       iframe.style.width = frameWidth.value + '%';
       iframe.style.height = frameHeight.value + 'px';
       iframe.style.marginLeft = shift.value + 'px';
+
+      // Post text updates to preview iframe
+      const msg = {
+        type: 'editor-update',
+        pageTitle: pageTitle.value,
+        eoaTitle: eoaTitle.value,
+        woaTitle: woaTitle.value,
+        openBtnText: openText.value,
+        footerText: footerText.value,
+        doGlobalReplace: doGlobal.checked,
+        search: searchText.value,
+        replace: replaceText.value
+      };
+
+      try {
+        iframe.contentWindow.postMessage(msg, '*');
+      } catch (e) {
+        // ignore cross-origin errors when preview cannot be accessed
+      }
     }
 
     function resetStyles(){
@@ -106,6 +154,11 @@
 
     apply.addEventListener('click', applyStyles);
     reset.addEventListener('click', ()=>{resetStyles(); setTimeout(applyStyles,50)});
+
+    // helper to escape HTML inserted into downloaded file
+    function escapeHtml(s){
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
 
     // initial apply
     applyStyles();
@@ -116,6 +169,32 @@
         const resp = await fetch('dual-weather-station.html');
         let text = await resp.text();
         const override = `\n<style id="editor-overrides">\n:root{\n  --bg1: ${bg1.value};\n  --bg2: ${bg2.value};\n  --header-bg: ${headerBg.value};\n  --header-color: ${headerColor.value};\n  --station-grad-a: ${stationA.value};\n  --station-grad-b: ${stationB.value};\n  --station-text: ${stationText.value};\n}\n/* iframe display overrides */\n.iframe-wrapper iframe{ width: ${frameWidth.value}%; height: ${frameHeight.value}px; margin-left: ${shift.value}px; }\n.header, header{ background: var(--header-bg)!important; color: var(--header-color)!important;}\n.station-header{ background: linear-gradient(135deg, var(--station-grad-a), var(--station-grad-b))!important; color: var(--station-text)!important }\n</style>\n`;
+
+        // apply text replacements before injecting style
+        if (pageTitle.value) {
+          text = text.replace(/<title>[\s\S]*?<\/title>/, '<title>'+escapeHtml(pageTitle.value)+'</title>');
+          text = text.replace(/<h1[^>]*>[^<]*<\/h1>/, '<h1 id="page-title">'+escapeHtml(pageTitle.value)+'</h1>');
+        }
+        if (eoaTitle.value) {
+          text = text.replace(/(<span[^>]*id=["']?eoa-title["']?[^>]*>)[\s\S]*?(<\/span>)/, '$1'+escapeHtml(eoaTitle.value)+'$2');
+        }
+        if (woaTitle.value) {
+          text = text.replace(/(<span[^>]*id=["']?woa-title["']?[^>]*>)[\s\S]*?(<\/span>)/, '$1'+escapeHtml(woaTitle.value)+'$2');
+        }
+        if (openText.value) {
+          text = text.replace(/(<a[^>]*id=["']?eoa-open-btn["']?[^>]*>)[\s\S]*?(<\/a>)/, '$1'+escapeHtml(openText.value)+'$2');
+          text = text.replace(/(<a[^>]*id=["']?woa-open-btn["']?[^>]*>)[\s\S]*?(<\/a>)/, '$1'+escapeHtml(openText.value)+'$2');
+        }
+        if (footerText.value) {
+          text = text.replace(/(<footer[^>]*id=["']?footer-text["']?[^>]*>)[\s\S]*?(<\/footer>)/, '$1'+escapeHtml(footerText.value)+'$2');
+        }
+
+        if (doGlobal.checked && searchText.value) {
+          // simple global replace on the whole HTML text
+          const s = searchText.value;
+          const r = replaceText.value || '';
+          text = text.split(s).join(r);
+        }
 
         // insert before </head>
         if(text.includes('</head>')){
