@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dual Weather Station Monitor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -181,9 +182,14 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <span class="icon">⛈️</span>
-            <h1 id="page-title">DUAL WEATHER STATION MONITOR</h1>
+        <header class="header">
+            <div class="header-left">
+                <span class="icon">⛈️</span>
+                <h1 id="page-title">DUAL WEATHER STATION MONITOR</h1>
+            </div>
+            <div class="header-actions">
+                <a class="editor-btn" href="editor.html" target="_blank" rel="noopener noreferrer">Customize</a>
+            </div>
         </header>
 
         <div class="grid">
@@ -270,8 +276,9 @@
             </div>
         </div>
 
-        <footer id="footer-text">
-            Unified Weather Station Dashboard • EOA & WOA Monitoring System
+        <footer id="footer-text" class="footer">
+            <div>Unified Weather Station Dashboard • EOA & WOA Monitoring System</div>
+            <div style="font-size:12px;opacity:0.85;margin-top:6px">Built for quick monitoring • Double-click to open downloaded HTML</div>
         </footer>
     </div>
 
