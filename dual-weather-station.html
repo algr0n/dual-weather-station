@@ -183,7 +183,7 @@
     <div class="container">
         <header>
             <span class="icon">⛈️</span>
-            <h1>DUAL WEATHER STATION MONITOR</h1>
+            <h1 id="page-title">DUAL WEATHER STATION MONITOR</h1>
         </header>
 
         <div class="grid">
@@ -192,9 +192,9 @@
                 <div class="station-header">
                     <div class="station-title">
                         <span>📍</span>
-                        <span>EOA Weather</span>
+                        <span id="eoa-title">EOA Weather</span>
                     </div>
-                    <a href="http://admin:admin@161.99.100.251/admin/mainreadouts.php" 
+                    <a id="eoa-open-btn" href="http://admin:admin@161.99.100.251/admin/mainreadouts.php" 
                        target="_blank" 
                        rel="noopener noreferrer" 
                        class="open-btn">
@@ -233,9 +233,9 @@
                 <div class="station-header">
                     <div class="station-title">
                         <span>📍</span>
-                        <span>WOA Weather</span>
+                        <span id="woa-title">WOA Weather</span>
                     </div>
-                    <a href="http://admin:admin@161.99.100.30/admin/mainreadouts.php" 
+                    <a id="woa-open-btn" href="http://admin:admin@161.99.100.30/admin/mainreadouts.php" 
                        target="_blank" 
                        rel="noopener noreferrer" 
                        class="open-btn">
@@ -270,7 +270,7 @@
             </div>
         </div>
 
-        <footer>
+        <footer id="footer-text">
             Unified Weather Station Dashboard • EOA & WOA Monitoring System
         </footer>
     </div>
@@ -313,6 +313,55 @@
                 // Cross-origin error expected, iframe probably loaded fine
             }
         }, 5000);
+
+        // Listen for editor updates and apply them live
+        function replaceTextNodes(root, search, replace) {
+            if (!search) return;
+            const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+            let node;
+            while (node = walker.nextNode()) {
+                if (node.nodeValue && node.nodeValue.includes(search)) {
+                    node.nodeValue = node.nodeValue.split(search).join(replace);
+                }
+            }
+        }
+
+        window.addEventListener('message', (ev) => {
+            const data = ev.data || {};
+            if (data.type !== 'editor-update') return;
+
+            if (typeof data.pageTitle === 'string') {
+                document.title = data.pageTitle;
+                const el = document.getElementById('page-title');
+                if (el) el.textContent = data.pageTitle;
+            }
+
+            if (typeof data.eoaTitle === 'string') {
+                const el = document.getElementById('eoa-title');
+                if (el) el.textContent = data.eoaTitle;
+            }
+
+            if (typeof data.woaTitle === 'string') {
+                const el = document.getElementById('woa-title');
+                if (el) el.textContent = data.woaTitle;
+            }
+
+            if (typeof data.openBtnText === 'string') {
+                const a1 = document.getElementById('eoa-open-btn');
+                const a2 = document.getElementById('woa-open-btn');
+                if (a1) a1.textContent = data.openBtnText;
+                if (a2) a2.textContent = data.openBtnText;
+            }
+
+            if (typeof data.footerText === 'string') {
+                const f = document.getElementById('footer-text');
+                if (f) f.textContent = data.footerText;
+            }
+
+            if (data.doGlobalReplace && data.search) {
+                replaceTextNodes(document.body, data.search, data.replace || '');
+            }
+        });
     </script>
 </body>
 </html>
