@@ -118,13 +118,23 @@
             flex: 1;
             position: relative;
             min-height: 600px;
+            overflow: hidden;
+        }
+
+        .iframe-wrapper {
+            position: relative;
+            width: 100%;
+            height: 700px;
+            overflow: hidden;
         }
 
         iframe {
-            width: 100%;
+            width: 130%;
             height: 700px;
             border: none;
             display: block;
+            margin-left: -165px;
+            transform-origin: top left;
         }
 
         .error-message {
@@ -205,13 +215,15 @@
                 </div>
                 <div class="separator"></div>
                 <div class="station-content">
-                    <iframe 
-                        src="http://161.99.100.251/admin/mainreadouts.php"
-                        title="EOA Weather Station"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
-                        loading="lazy"
-                        id="eoa-iframe"
-                    ></iframe>
+                    <div class="iframe-wrapper">
+                        <iframe 
+                            src="http://161.99.100.251/admin/mainreadouts.php"
+                            title="EOA Weather Station"
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                            loading="lazy"
+                            id="eoa-iframe"
+                        ></iframe>
+                    </div>
                     <div class="error-message" id="eoa-error">
                         <div class="error-icon">☁️</div>
                         <div class="error-title">Unable to load weather station</div>
@@ -244,13 +256,15 @@
                 </div>
                 <div class="separator"></div>
                 <div class="station-content">
-                    <iframe 
-                        src="http://161.99.100.30/admin/mainreadouts.php"
-                        title="WOA Weather Station"
-                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
-                        loading="lazy"
-                        id="woa-iframe"
-                    ></iframe>
+                    <div class="iframe-wrapper">
+                        <iframe 
+                            src="http://161.99.100.30/admin/mainreadouts.php"
+                            title="WOA Weather Station"
+                            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                            loading="lazy"
+                            id="woa-iframe"
+                        ></iframe>
+                    </div>
                     <div class="error-message" id="woa-error">
                         <div class="error-icon">☁️</div>
                         <div class="error-title">Unable to load weather station</div>
