@@ -9,23 +9,33 @@ function App() {
   const [eoaError, setEoaError] = useState(false)
   const [woaError, setWoaError] = useState(false)
 
+  const username = "admin"
+  const password = "admin"
+
   const stations = [
     {
       name: "EOA Weather",
-      url: "http://161.99.100.251/admin/mainreadouts.php",
+      baseUrl: "http://161.99.100.251/admin/mainreadouts.php",
       hasError: eoaError,
       setError: setEoaError
     },
     {
       name: "WOA Weather", 
-      url: "http://161.99.100.30/admin/mainreadouts.php",
+      baseUrl: "http://161.99.100.30/admin/mainreadouts.php",
       hasError: woaError,
       setError: setWoaError
     }
   ]
 
-  const handleOpenInNewTab = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer')
+  const getAuthUrl = (baseUrl: string) => {
+    const url = new URL(baseUrl)
+    url.username = username
+    url.password = password
+    return url.toString()
+  }
+
+  const handleOpenInNewTab = (baseUrl: string) => {
+    window.open(getAuthUrl(baseUrl), '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -40,8 +50,7 @@ function App() {
 
         <Alert className="bg-muted border-accent/20">
           <AlertDescription className="text-sm text-muted-foreground">
-            Both weather stations require authentication (Username: <span className="font-mono-tech text-foreground">admin</span> / Password: <span className="font-mono-tech text-foreground">admin</span>). 
-            You may need to authenticate within each panel separately.
+            Authentication credentials are automatically embedded. If you experience any issues, try opening the station in a new tab.
           </AlertDescription>
         </Alert>
 
@@ -59,7 +68,7 @@ function App() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => handleOpenInNewTab(station.url)}
+                    onClick={() => handleOpenInNewTab(station.baseUrl)}
                     className="gap-2 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20"
                   >
                     <ArrowSquareOut size={16} weight="bold" />
@@ -82,7 +91,7 @@ function App() {
                         </p>
                       </div>
                       <Button
-                        onClick={() => handleOpenInNewTab(station.url)}
+                        onClick={() => handleOpenInNewTab(station.baseUrl)}
                         className="gap-2"
                       >
                         <ArrowSquareOut size={20} weight="bold" />
@@ -92,7 +101,7 @@ function App() {
                   </div>
                 ) : (
                   <iframe
-                    src={station.url}
+                    src={getAuthUrl(station.baseUrl)}
                     className="w-full h-[600px] lg:h-[700px] border-0"
                     title={station.name}
                     sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
