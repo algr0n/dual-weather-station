@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dual Weather Station Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a202c;
+            letter-spacing: -0.5px;
+        }
+
+        .icon {
+            font-size: 32px;
+        }
+
+        .info-banner {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        @media (min-width: 1024px) {
+            .grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .station-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .station-header {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .station-title {
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .open-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .open-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .station-content {
+            flex: 1;
+            position: relative;
+            min-height: 600px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 700px;
+            border: none;
+            display: block;
+        }
+
+        .error-message {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 600px;
+            padding: 40px;
+            text-align: center;
+            background: #f7fafc;
+        }
+
+        .error-message.show {
+            display: flex;
+        }
+
+        .error-icon {
+            font-size: 64px;
+            color: #a0aec0;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+
+        .error-description {
+            font-size: 14px;
+            color: #718096;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 30px;
+            padding: 15px;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .separator {
+            height: 3px;
+            background: linear-gradient(90deg, #f6ad55 0%, #ed8936 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <span class="icon">⛈️</span>
+            <h1>DUAL WEATHER STATION MONITOR</h1>
+        </header>
+
+        <div class="info-banner">
+            📌 Authentication credentials are automatically embedded. If you experience any issues loading the weather stations, use the "Open in Tab" buttons.
+        </div>
+
+        <div class="grid">
+            <!-- EOA Weather Station -->
+            <div class="station-card">
+                <div class="station-header">
+                    <div class="station-title">
+                        <span>📍</span>
+                        <span>EOA Weather</span>
+                    </div>
+                    <a href="http://admin:admin@161.99.100.251/admin/mainreadouts.php" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="open-btn">
+                        ↗️ Open in Tab
+                    </a>
+                </div>
+                <div class="separator"></div>
+                <div class="station-content">
+                    <iframe 
+                        src="http://admin:admin@161.99.100.251/admin/mainreadouts.php"
+                        title="EOA Weather Station"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                        loading="lazy"
+                        id="eoa-iframe"
+                    ></iframe>
+                    <div class="error-message" id="eoa-error">
+                        <div class="error-icon">☁️</div>
+                        <div class="error-title">Unable to load weather station</div>
+                        <div class="error-description">
+                            The weather station may be unavailable, or your browser may be blocking the embedded content.
+                        </div>
+                        <a href="http://admin:admin@161.99.100.251/admin/mainreadouts.php" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="open-btn">
+                            ↗️ Open EOA Weather in New Tab
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- WOA Weather Station -->
+            <div class="station-card">
+                <div class="station-header">
+                    <div class="station-title">
+                        <span>📍</span>
+                        <span>WOA Weather</span>
+                    </div>
+                    <a href="http://admin:admin@161.99.100.30/admin/mainreadouts.php" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="open-btn">
+                        ↗️ Open in Tab
+                    </a>
+                </div>
+                <div class="separator"></div>
+                <div class="station-content">
+                    <iframe 
+                        src="http://admin:admin@161.99.100.30/admin/mainreadouts.php"
+                        title="WOA Weather Station"
+                        sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                        loading="lazy"
+                        id="woa-iframe"
+                    ></iframe>
+                    <div class="error-message" id="woa-error">
+                        <div class="error-icon">☁️</div>
+                        <div class="error-title">Unable to load weather station</div>
+                        <div class="error-description">
+                            The weather station may be unavailable, or your browser may be blocking the embedded content.
+                        </div>
+                        <a href="http://admin:admin@161.99.100.30/admin/mainreadouts.php" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           class="open-btn">
+                            ↗️ Open WOA Weather in New Tab
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            Unified Weather Station Dashboard • EOA & WOA Monitoring System
+        </footer>
+    </div>
+
+    <script>
+        // Error handling for iframes
+        const eoaIframe = document.getElementById('eoa-iframe');
+        const woaIframe = document.getElementById('woa-iframe');
+        const eoaError = document.getElementById('eoa-error');
+        const woaError = document.getElementById('woa-error');
+
+        function handleIframeError(iframe, errorElement) {
+            iframe.style.display = 'none';
+            errorElement.classList.add('show');
+        }
+
+        eoaIframe.addEventListener('error', () => {
+            handleIframeError(eoaIframe, eoaError);
+        });
+
+        woaIframe.addEventListener('error', () => {
+            handleIframeError(woaIframe, woaError);
+        });
+
+        // Check if iframe loaded successfully
+        setTimeout(() => {
+            try {
+                if (!eoaIframe.contentWindow) {
+                    handleIframeError(eoaIframe, eoaError);
+                }
+            } catch (e) {
+                // Cross-origin error expected, iframe probably loaded fine
+            }
+            
+            try {
+                if (!woaIframe.contentWindow) {
+                    handleIframeError(woaIframe, woaError);
+                }
+            } catch (e) {
+                // Cross-origin error expected, iframe probably loaded fine
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
