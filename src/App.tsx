@@ -104,7 +104,16 @@ function App() {
                     src={getAuthUrl(station.baseUrl)}
                     className="w-full h-[600px] lg:h-[700px] border-0"
                     title={station.name}
-                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+                    sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation"
+                    onLoad={(e) => {
+                      try {
+                        const iframe = e.target as HTMLIFrameElement;
+                        iframe.contentWindow?.document;
+                      } catch (error) {
+                        console.error(`Failed to load ${station.name}:`, error);
+                        station.setError(true);
+                      }
+                    }}
                     onError={() => station.setError(true)}
                     loading="lazy"
                   />
