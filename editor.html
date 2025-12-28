@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dual Weather Station - Simple Editor</title>
+  <style>
+    :root{--bg1:#667eea;--bg2:#764ba2;--header-bg:#ffffff;--header-color:#111827;--station-grad-a:#4299e1;--station-grad-b:#3182ce;--station-text:#ffffff}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial}
+    .wrap{display:flex;gap:18px;height:100vh;padding:18px;background:linear-gradient(135deg,var(--bg1) 0%, var(--bg2) 100%)}
+    .controls{width:360px;min-width:260px;background:#ffffffaa;backdrop-filter:blur(6px);border-radius:10px;padding:16px;overflow:auto}
+    h2{font-size:16px;margin:8px 0}
+    label{display:block;font-size:13px;margin-top:10px;color:#333}
+    .row{display:flex;gap:8px;align-items:center;margin-top:6px}
+    input[type=color]{height:36px;width:48px;padding:0;border:0}
+    input[type=range]{width:100%}
+    button{margin-top:12px;padding:8px 10px;border-radius:6px;border:0;background:#2563eb;color:white;cursor:pointer}
+    .preview{flex:1;display:flex;flex-direction:column;gap:8px}
+    .preview-header{background:var(--header-bg);color:var(--header-color);border-radius:10px;padding:16px}
+    .preview-frame{flex:1;background:#fff;border-radius:10px;overflow:hidden;display:flex;gap:12px;padding:12px}
+    .frame-box{flex:1;background:#f3f4f6;border-radius:8px;padding:8px}
+    .iframe{width:100%;height:100%;border:0}
+    .note{font-size:12px;color:#334155;margin-top:12px}
+    .small{font-size:12px;color:#374151}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="controls">
+      <h1>Simple Editor</h1>
+      <p class="small">Edit page-level styles and iframe render (cropping/shift/scale). Note: cross-origin iframe inner content cannot be modified due to browser security; we only change how it is displayed and save an override stylesheet into the downloaded HTML.</p>
+
+      <h2>Background</h2>
+      <label>Gradient start</label>
+      <div class="row"><input id="bg1" type="color" value="#667eea"><input id="bg2" type="color" value="#764ba2"></div>
+
+      <h2>Header</h2>
+      <label>Header background</label>
+      <div class="row"><input id="headerBg" type="color" value="#ffffff"><input id="headerColor" type="color" value="#111827"></div>
+
+      <h2>Station Header</h2>
+      <label>Gradient start / end</label>
+      <div class="row"><input id="stationA" type="color" value="#4299e1"><input id="stationB" type="color" value="#3182ce"></div>
+      <label>Text color</label>
+      <div class="row"><input id="stationText" type="color" value="#ffffff"></div>
+
+      <h2>Iframe display (applies to both stations)</h2>
+      <label>Horizontal shift (px)</label>
+      <div class="row"><input id="shift" type="range" min="-300" max="0" value="-120"></div>
+      <label>Frames width (%)</label>
+      <div class="row"><input id="frameWidth" type="range" min="100" max="200" value="130"></div>
+      <label>Frame height (px)</label>
+      <div class="row"><input id="frameHeight" type="range" min="450" max="900" value="700"></div>
+
+      <div class="row"><button id="apply">Apply</button><button id="download" style="background:#059669;margin-left:8px">Download modified HTML</button></div>
+      <div class="row"><button id="reset" style="background:#ef4444">Reset</button></div>
+
+      <p class="note">Tip: Use the Download button to save a copy of the page with your overrides embedded (it will insert an <code>#editor-overrides</code> style block).</p>
+    </div>
+
+    <div class="preview">
+      <div class="preview-header">Preview (live)</div>
+      <div class="preview-frame">
+        <div class="frame-box">
+          <iframe id="preview-iframe" class="iframe" src="dual-weather-station.html"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const bg1 = document.getElementById('bg1');
+    const bg2 = document.getElementById('bg2');
+    const headerBg = document.getElementById('headerBg');
+    const headerColor = document.getElementById('headerColor');
+    const stationA = document.getElementById('stationA');
+    const stationB = document.getElementById('stationB');
+    const stationText = document.getElementById('stationText');
+    const shift = document.getElementById('shift');
+    const frameWidth = document.getElementById('frameWidth');
+    const frameHeight = document.getElementById('frameHeight');
+    const apply = document.getElementById('apply');
+    const reset = document.getElementById('reset');
+    const download = document.getElementById('download');
+    const iframe = document.getElementById('preview-iframe');
+
+    function applyStyles() {
+      document.documentElement.style.setProperty('--bg1', bg1.value);
+      document.documentElement.style.setProperty('--bg2', bg2.value);
+      document.documentElement.style.setProperty('--header-bg', headerBg.value);
+      document.documentElement.style.setProperty('--header-color', headerColor.value);
+      document.documentElement.style.setProperty('--station-grad-a', stationA.value);
+      document.documentElement.style.setProperty('--station-grad-b', stationB.value);
+      document.documentElement.style.setProperty('--station-text', stationText.value);
+
+      // Update iframe styling
+      iframe.style.setProperty('--frame-width', frameWidth.value + '%');
+      iframe.style.width = frameWidth.value + '%';
+      iframe.style.height = frameHeight.value + 'px';
+      iframe.style.marginLeft = shift.value + 'px';
+    }
+
+    function resetStyles(){
+      bg1.value = '#667eea'; bg2.value = '#764ba2'; headerBg.value = '#ffffff'; headerColor.value = '#111827'; stationA.value = '#4299e1'; stationB.value = '#3182ce'; stationText.value = '#ffffff'; shift.value = -120; frameWidth.value = 130; frameHeight.value = 700; applyStyles();
+    }
+
+    apply.addEventListener('click', applyStyles);
+    reset.addEventListener('click', ()=>{resetStyles(); setTimeout(applyStyles,50)});
+
+    // initial apply
+    applyStyles();
+
+    // Create downloadable modified HTML: fetch original file and inject an override style block
+    download.addEventListener('click', async ()=>{
+      try{
+        const resp = await fetch('dual-weather-station.html');
+        let text = await resp.text();
+        const override = `\n<style id="editor-overrides">\n:root{\n  --bg1: ${bg1.value};\n  --bg2: ${bg2.value};\n  --header-bg: ${headerBg.value};\n  --header-color: ${headerColor.value};\n  --station-grad-a: ${stationA.value};\n  --station-grad-b: ${stationB.value};\n  --station-text: ${stationText.value};\n}\n/* iframe display overrides */\n.iframe-wrapper iframe{ width: ${frameWidth.value}%; height: ${frameHeight.value}px; margin-left: ${shift.value}px; }\n.header, header{ background: var(--header-bg)!important; color: var(--header-color)!important;}\n.station-header{ background: linear-gradient(135deg, var(--station-grad-a), var(--station-grad-b))!important; color: var(--station-text)!important }\n</style>\n`;
+
+        // insert before </head>
+        if(text.includes('</head>')){
+          text = text.replace('</head>', override + '</head>');
+        } else {
+          text = override + text;
+        }
+
+        const blob = new Blob([text], {type: 'text/html'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'dual-weather-station-custom.html';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }catch(e){
+        alert('Failed to create download: '+e.message);
+      }
+    });
+
+    // live apply while slider moves
+    [shift, frameWidth, frameHeight].forEach(el=>el.addEventListener('input', applyStyles));
+
+  </script>
+</body>
+</html>
